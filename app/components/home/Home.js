@@ -203,10 +203,10 @@ export default class Home extends Component<Props, State> {
     document.removeEventListener('scroll', this.initInfinitePagination);
   }
 
-  onChange = async (isVisible: boolean) => {
+  onChange = (isVisible: boolean) => {
     const { isLoading, activeMode, activeModeOptions } = this.props;
     if (isVisible && !isLoading) {
-      await this.paginate(activeMode, activeModeOptions);
+      this.paginate(activeMode, activeModeOptions);
     }
   };
 
