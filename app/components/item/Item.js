@@ -31,7 +31,6 @@ import type {
   torrentType,
   qualityType
 } from '../../api/torrents/TorrentProviderInterface';
-import type { deviceType } from '../../api/players/PlayerProviderInterface';
 
 type playerType = 'default' | 'plyr' | 'vlc' | 'chromecast' | 'youtube';
 
@@ -61,7 +60,6 @@ type State = {
   seasons: [],
   season: [],
   episodes: [],
-  castingDevices: Array<deviceType>,
   currentPlayer: playerType,
   playbackInProgress: boolean,
   fetchingTorrents: boolean,
@@ -87,8 +85,6 @@ export default class Item extends Component<Props, State> {
   playerProvider: ChromecastPlayerProvider;
 
   player: Player;
-
-  checkCastingDevicesInterval: number;
 
   defaultTorrent: torrentSelectionType = {
     default: {
@@ -148,7 +144,6 @@ export default class Item extends Component<Props, State> {
     seasons: [],
     season: [],
     episode: {},
-    castingDevices: [],
     currentPlayer: 'default',
     playbackInProgress: false,
     fetchingTorrents: false,
@@ -175,12 +170,6 @@ export default class Item extends Component<Props, State> {
 
   static defaultProps: Props;
 
-  async initCastingDevices() {
-    this.setState({
-      castingDevices: await this.playerProvider.getDevices()
-    });
-  }
-
   /**
    * Check which players are available on the system
    */
@@ -200,11 +189,6 @@ export default class Item extends Component<Props, State> {
   async componentDidMount() {
     const { itemId } = this.props;
     window.scrollTo(0, 0);
-    this.initCastingDevices();
-    this.checkCastingDevicesInterval = setInterval(() => {
-      console.log('Looking for casting devices...');
-      this.initCastingDevices();
-    }, 10000);
 
     this.stopPlayback();
     this.player.destroy();
@@ -228,12 +212,10 @@ export default class Item extends Component<Props, State> {
       ...this.initialState
     });
     this.getAllData(nextProps.itemId);
-    this.initCastingDevices();
   }
 
   componentWillUnmount() {
     this.stopPlayback();
-    clearInterval(this.checkCastingDevicesInterval);
     this.player.destroy();
     this.subtitleServer.closeServer();
   }
@@ -651,7 +633,6 @@ export default class Item extends Component<Props, State> {
       playbackInProgress,
       favorites,
       watchList,
-      castingDevices,
       captions
     } = this.state;
 
@@ -677,7 +658,6 @@ export default class Item extends Component<Props, State> {
               this.plyr = ref;
             }}
           />
-
           <Col sm="12" className="Item--background" style={itemBackgroundUrl}>
             <Col sm="6" className="Item--image">
               <Poster
@@ -715,8 +695,8 @@ export default class Item extends Component<Props, State> {
         <Row className="row-margin">
           <Col sm="2">
             <SelectPlayer
+              chromeCastPlayer={this.playerProvider}
               currentSelection={currentPlayer}
-              castingDevices={castingDevices}
               onSelect={this.setPlayer}
             />
           </Col>
