@@ -15,6 +15,7 @@ import BackButton from './BackButton';
 import Similar from './Similar';
 import SelectPlayer from './SelectPlayer';
 import VideoPlayer from './VideoPlayer';
+import LoadingStatus from './LoadingStatus';
 import Show from '../show/Show';
 import ChromecastPlayerProvider from '../../api/players/ChromecastPlayerProvider';
 import { getIdealTorrent } from '../../api/torrents/BaseTorrentProvider';
@@ -684,11 +685,10 @@ export default class Item extends Component<Props, State> {
                 onClick={this.startPlayback}
                 poster={item.images.poster.thumb}
               />
-              <div className="Item--loading-status">
-                {!servingUrl && torrentInProgress && 'Loading torrent...'}
-                {fetchingTorrents && 'Fetching torrents...'}
-              </div>
-
+              <LoadingStatus
+                isLoading={!servingUrl && torrentInProgress}
+                isFetching={fetchingTorrents}
+              />
               <SaveItem
                 item={item}
                 favorites={favorites}
