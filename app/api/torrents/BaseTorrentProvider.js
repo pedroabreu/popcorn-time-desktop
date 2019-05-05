@@ -47,7 +47,7 @@ export function getHealth(seeders: number, leechers: number = 0): string {
   return 'poor';
 }
 
-export function hasNonEnglishLanguage(metadata: string): boolean {
+function hasNonEnglishLanguage(metadata: string): boolean {
   if (metadata.includes('french')) return true;
   if (metadata.includes('german')) return true;
   if (metadata.includes('greek')) return true;
@@ -92,9 +92,8 @@ export function formatSeasonEpisodeToObject(
   episode: ?number
 ): Object {
   return {
-    season: String(season).length === 1 ? '0' + String(season) : String(season),
-    episode:
-      String(episode).length === 1 ? '0' + String(episode) : String(episode)
+    season: String(season).padStart(2, '0'),
+    episode: String(episode).padStart(2, '0')
   };
 }
 
@@ -123,35 +122,24 @@ export function merge(results: Array<any>) {
 export function resolveEndpoint(defaultEndpoint: string, providerId: string) {
   const endpointEnvVariable = `CONFIG_ENDPOINT_${providerId}`;
 
-  switch (process.env[endpointEnvVariable]) {
-    case undefined:
-      return defaultEndpoint;
-    default:
-      return url.format({
-        ...url.parse(defaultEndpoint),
-        hostname: process.env[endpointEnvVariable],
-        host: process.env[endpointEnvVariable]
-      });
+  if (!process.env[endpointEnvVariable]) {
+    return defaultEndpoint;
   }
+
+  return url.format({
+    ...url.parse(defaultEndpoint),
+    hostname: process.env[endpointEnvVariable],
+    host: process.env[endpointEnvVariable]
+  });
 }
 
 export function getIdealTorrent(torrents: Array<torrentType>): torrentType {
-  const idealTorrent = torrents
-    .filter(torrent => !!torrent)
-    .filter(
-      torrent =>
-        !!torrent && !!torrent.magnet && typeof torrent.seeders === 'number'
-    );
+  const idealTorrent = torrents.filter(
+    torrent =>
+      !!torrent && !!torrent.magnet && typeof torrent.seeders === 'number'
+  );
 
-  return idealTorrent.sort((prev: torrentType, next: torrentType) => {
-    if (prev.seeders === next.seeders) {
-      return 0;
-    }
-
-    if (!next.seeders || !prev.seeders) return 1;
-
-    return prev.seeders > next.seeders ? -1 : 1;
-  })[0];
+  return sortTorrentsBySeeders(idealTorrent)[0];
 }
 
 export function handleProviderError(error: Error) {
@@ -258,12 +246,9 @@ export function formatSeasonEpisodeToString(
   season: number,
   episode: number
 ): string {
-  return (
-    's' +
-    (String(season).length === 1 ? '0' + String(season) : String(season)) +
-    ('e' +
-      (String(episode).length === 1 ? '0' + String(episode) : String(episode)))
-  );
+  const seasonString = String(season).padStart(2, '0');
+  const episodeString = String(episode).padStart(2, '0');
+  return `s${seasonString}e${episodeString}`;
 }
 
 export function isExactEpisode(
