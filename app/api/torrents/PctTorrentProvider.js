@@ -1,5 +1,5 @@
 // @flow
-import fetch from 'isomorphic-fetch';
+import axios from 'axios';
 import {
   handleProviderError,
   timeout,
@@ -23,8 +23,8 @@ export default class PctTorrentProvider implements TorrentProviderInterface {
   ) {
     const urlTypeParam = type === 'movies' ? 'movie' : 'show';
     const request = timeout(
-      fetch(`${resolvedEndpoint}/${urlTypeParam}/${itemId}`).then(res =>
-        res.json()
+      axios(`${resolvedEndpoint}/${urlTypeParam}/${itemId}`).then(
+        res => res.data
       )
     );
 
@@ -114,7 +114,7 @@ export default class PctTorrentProvider implements TorrentProviderInterface {
   }
 
   static getStatus() {
-    return fetch(resolvedEndpoint)
+    return axios(resolvedEndpoint)
       .then(res => res.ok)
       .catch(() => false);
   }

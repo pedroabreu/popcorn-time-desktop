@@ -1,5 +1,5 @@
 // @flow
-import fetch from 'isomorphic-fetch';
+import axios from 'axios';
 import { remote } from 'electron';
 import semver from 'semver';
 
@@ -17,8 +17,8 @@ export function isNewerSemvar(current: string, next: string): boolean {
 export default function CheckUpdate(): Promise<boolean> {
   const currentSemvar = remote.app.getVersion();
 
-  return fetch(defaultUpdateEndpoint)
-    .then(res => res.json())
+  return axios(defaultUpdateEndpoint)
+    .then(res => res.data)
     .then(
       res =>
         !!res.filter(

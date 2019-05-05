@@ -2,7 +2,7 @@
  * Pirate Bay torrent provider
  * @flow
  */
-import fetch from 'isomorphic-fetch';
+import axios from 'axios';
 import {
   formatSeasonEpisodeToString,
   constructSeasonQueries,
@@ -26,8 +26,8 @@ export default class PbTorrentProvider implements TorrentProviderInterface {
     //       PirateBay's database errors.
     const searchQueryUrl = `${resolvedEndpoint}/search/${searchQuery}`;
 
-    return timeout(fetch(searchQueryUrl))
-      .then(res => res.json())
+    return timeout(axios(searchQueryUrl))
+      .then(res => res.data)
       .then(torrents => torrents.map(torrent => this.formatTorrent(torrent)))
       .catch(error => {
         handleProviderError(error);
@@ -49,7 +49,7 @@ export default class PbTorrentProvider implements TorrentProviderInterface {
   }
 
   static getStatus(): Promise<boolean> {
-    return fetch(resolvedEndpoint)
+    return axios(resolvedEndpoint)
       .then(res => res.ok)
       .catch(() => false);
   }

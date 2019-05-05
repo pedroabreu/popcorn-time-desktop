@@ -1,5 +1,5 @@
 // @flow
-import fetch from 'isomorphic-fetch';
+import axios from 'axios';
 import {
   determineQuality,
   timeout,
@@ -7,7 +7,7 @@ import {
 } from './BaseTorrentProvider';
 import type { TorrentProviderInterface } from './TorrentProviderInterface';
 
-const endpoint = 'https://yts.am';
+const endpoint = 'https://yst.am';
 const providerId = 'YTS';
 const resolvedEndpoint = resolveEndpoint(endpoint, providerId);
 
@@ -31,14 +31,10 @@ export default class YtsTorrentProvider implements TorrentProviderInterface {
 
   static fetch(itemId: string) {
     return timeout(
-      fetch(
-        [
-          `${resolvedEndpoint}/api/v2/list_movies.json`,
-          `?query_term=${itemId}`,
-          '&order_by=desc&sort_by=seeds&limit=50'
-        ].join('')
+      axios(
+        `${resolvedEndpoint}/api/v2/list_movies.json?query_term=${itemId}&order_by=desc&sort_by=seeds&limit=50`
       )
-    ).then(res => res.json());
+    ).then(res => res.data);
   }
 
   static formatTorrent(torrent) {
@@ -54,7 +50,7 @@ export default class YtsTorrentProvider implements TorrentProviderInterface {
   }
 
   static getStatus(): Promise<boolean> {
-    return fetch('https://yts.am/api/v2/list_movies.json')
+    return axios(`${resolvedEndpoint}/api/v2/list_movies.json`)
       .then(res => !!res.ok)
       .catch(() => false);
   }
