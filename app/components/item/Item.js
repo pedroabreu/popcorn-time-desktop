@@ -16,6 +16,7 @@ import Similar from './Similar';
 import SelectPlayer from './SelectPlayer';
 import VideoPlayer from './VideoPlayer';
 import LoadingStatus from './LoadingStatus';
+import TorrentQuality from './TorrentQuality';
 import Show from '../show/Show';
 import ChromecastPlayerProvider from '../../api/players/ChromecastPlayerProvider';
 import { getIdealTorrent } from '../../api/torrents/BaseTorrentProvider';
@@ -141,6 +142,7 @@ export default class Item extends Component<Props, State> {
     servingUrl: undefined,
     selectedSeason: 1,
     selectedEpisode: 1,
+    selectedQuality: null,
     seasons: [],
     season: [],
     episode: {},
@@ -393,6 +395,13 @@ export default class Item extends Component<Props, State> {
 
       this.setState({
         fetchingTorrents: false,
+        selectedQuality: torrent['1080p']
+          ? '1080p'
+          : torrent['720p']
+          ? '720p'
+          : torrent['480p']
+          ? '480p'
+          : undefined,
         torrent: {
           '1080p': torrent['1080p'] || this.defaultTorrent,
           '720p': torrent['720p'] || this.defaultTorrent,
@@ -505,23 +514,27 @@ export default class Item extends Component<Props, State> {
     }));
   }
 
-  startPlayback = async ({
+  setQuality = ({
     target: { name: playbackQuality }
   }: Event<HTMLButtonElement>) => {
+    this.setState({
+      selectedQuality: playbackQuality
+    });
+  };
+
+  startPlayback = async () => {
     const {
       currentPlayer,
       torrentInProgress,
       selectedEpisode,
       selectedSeason,
+      selectedQuality,
       item,
       captions,
-      torrent,
-      idealTorrent
+      torrent
     } = this.state;
 
-    const { magnet, method: activeMode } = playbackQuality
-      ? torrent[playbackQuality]
-      : idealTorrent;
+    const { magnet, method: activeMode } = torrent[selectedQuality];
 
     if (torrentInProgress) {
       this.stopPlayback();
@@ -702,34 +715,23 @@ export default class Item extends Component<Props, State> {
           </Col>
           <Col sm="10">
             {process.env.FLAG_MANUAL_TORRENT_SELECTION === 'true' && (
-              <React.Fragment>
-                <button
-                  type="button"
-                  name="1080p"
-                  onClick={this.startPlayback}
-                  disabled={!torrent['1080p'].quality}
-                >
-                  Start 1080p -- {torrent['1080p'].seeders} seeders
-                </button>
-                <button
-                  type="button"
-                  name="720p"
-                  onClick={this.startPlayback}
-                  disabled={!torrent['720p'].quality}
-                >
-                  Start 720p -- {torrent['720p'].seeders} seeders
-                </button>
-                {activeMode === 'shows' && (
-                  <button
-                    type="button"
-                    name="480p"
-                    onClick={this.startPlayback}
-                    disabled={!torrent['480p'].quality}
-                  >
-                    Start 480p -- {torrent['480p'].seeders} seeders
-                  </button>
-                )}
-              </React.Fragment>
+              <TorrentQuality
+                onClick={this.setQuality}
+                quality={{
+                  '1080p': torrent['1080p'].quality,
+                  '720p': torrent['720p'].quality,
+                  ...(activeMode === 'shows' && {
+                    '480p': torrent['480p'].quality
+                  })
+                }}
+                seeders={{
+                  '1080p': torrent['1080p'].seeders,
+                  '720p': torrent['720p'].seeders,
+                  ...(activeMode === 'shows' && {
+                    '480p': torrent['480p'].seeders
+                  })
+                }}
+              />
             )}
           </Col>
         </Row>
