@@ -18,8 +18,6 @@ import Butter from '../../app/api/Butter';
 import shows from './butter.mock';
 import { getIdealTorrent } from '../../app/api/torrents/BaseTorrentProvider';
 
-const butter = new Butter();
-
 describe('Benchmark Butter Shows: Top 50', () => {
   describe('Season 1', () => {
     describe('Show', function testShow() {
@@ -36,7 +34,7 @@ describe('Benchmark Butter Shows: Top 50', () => {
       for (const show of shows) {
         it(`Shows: ${show.title} season 1, episode 1`, async done => {
           try {
-            const torrents = await butter.getTorrent(
+            const torrents = await Butter.getTorrent(
               show.id,
               'shows',
               {
@@ -73,7 +71,7 @@ describe('Benchmark Butter Shows: Top 50', () => {
       for (const show of shows) {
         it(`Season Complete: ${show.title} season 1`, async done => {
           try {
-            const torrents = await butter.getTorrent(
+            const torrents = await Butter.getTorrent(
               show.id,
               'season_complete',
               {
@@ -111,7 +109,7 @@ describe('Benchmark Butter Shows: Top 50', () => {
       for (const show of shows) {
         it(`Shows: ${show.title} season 2, episode 1`, async done => {
           try {
-            const torrents = await butter.getTorrent(
+            const torrents = await Butter.getTorrent(
               show.id,
               'shows',
               {
@@ -148,7 +146,7 @@ describe('Benchmark Butter Shows: Top 50', () => {
       for (const show of shows) {
         it(`Season Complete: ${show.title} season 2`, async done => {
           try {
-            const torrents = await butter.getTorrent(
+            const torrents = await Butter.getTorrent(
               show.id,
               'season_complete',
               {

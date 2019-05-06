@@ -79,8 +79,6 @@ export default class Item extends Component<Props, State> {
 
   state: State;
 
-  butter: Butter;
-
   torrent: Torrent;
 
   playerProvider: ChromecastPlayerProvider;
@@ -162,7 +160,6 @@ export default class Item extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.butter = new Butter();
     this.torrent = new Torrent();
     this.player = new Player();
     this.state = this.initialState;
@@ -198,8 +195,8 @@ export default class Item extends Component<Props, State> {
     this.setState({
       ...this.initialState,
       currentPlayer: 'default',
-      favorites: await this.butter.favorites('get'),
-      watchList: await this.butter.watchList('get')
+      favorites: await Butter.favorites('get'),
+      watchList: await Butter.watchList('get')
     });
 
     this.getAllData(itemId);
@@ -246,8 +243,8 @@ export default class Item extends Component<Props, State> {
       case 'seasons':
         this.setState({ seasons: [], episodes: [] });
         this.setState({
-          seasons: await this.butter.getSeasons(imdbId),
-          episodes: await this.butter.getSeason(imdbId, 1)
+          seasons: await Butter.getSeasons(imdbId),
+          episodes: await Butter.getSeason(imdbId, 1)
         });
         break;
       case 'episodes':
@@ -256,7 +253,7 @@ export default class Item extends Component<Props, State> {
         }
         this.setState({ episodes: [] });
         this.setState({
-          episodes: await this.butter.getSeason(imdbId, season)
+          episodes: await Butter.getSeason(imdbId, season)
         });
         break;
       default:
@@ -273,9 +270,9 @@ export default class Item extends Component<Props, State> {
     const item = await (() => {
       switch (activeMode) {
         case 'movies':
-          return this.butter.getMovie(imdbId);
+          return Butter.getMovie(imdbId);
         case 'shows':
-          return this.butter.getShow(imdbId);
+          return Butter.getShow(imdbId);
         default:
           throw new Error('Active mode not found');
       }
@@ -303,7 +300,7 @@ export default class Item extends Component<Props, State> {
       const { torrent, idealTorrent } = await (async () => {
         switch (activeMode) {
           case 'movies': {
-            const originalTorrent = await this.butter.getTorrent(
+            const originalTorrent = await Butter.getTorrent(
               imdbId,
               activeMode,
               {
@@ -322,12 +319,12 @@ export default class Item extends Component<Props, State> {
           case 'shows': {
             if (process.env.FLAG_SEASON_COMPLETE === 'true') {
               const [shows, seasonComplete] = await Promise.all([
-                this.butter.getTorrent(imdbId, activeMode, {
+                Butter.getTorrent(imdbId, activeMode, {
                   season,
                   episode,
                   searchQuery: title
                 }),
-                this.butter.getTorrent(imdbId, 'season_complete', {
+                Butter.getTorrent(imdbId, 'season_complete', {
                   season,
                   searchQuery: title
                 })
@@ -359,7 +356,7 @@ export default class Item extends Component<Props, State> {
               };
             }
 
-            const singleEpisodeTorrent = await this.butter.getTorrent(
+            const singleEpisodeTorrent = await Butter.getTorrent(
               imdbId,
               activeMode,
               {
@@ -609,12 +606,12 @@ export default class Item extends Component<Props, State> {
             break;
         }
 
-        const recentlyWatchedList = await this.butter.recentlyWatched('get');
+        const recentlyWatchedList = await Butter.recentlyWatched('get');
         const containsRecentlyWatchedItem = recentlyWatchedList.some(
           e => e.id === item.id
         );
         if (!containsRecentlyWatchedItem) {
-          await this.butter.recentlyWatched('set', item);
+          await Butter.recentlyWatched('set', item);
         }
 
         this.setState({

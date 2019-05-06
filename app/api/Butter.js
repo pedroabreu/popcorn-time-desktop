@@ -5,7 +5,7 @@
 import TorrentAdapter from './torrents/TorrentAdapter';
 import MetadataAdapter from './metadata/MetadataAdapter';
 
-export default class Butter {
+class Butter {
   getMovies(page: number = 1, limit: number = 50) {
     return MetadataAdapter.getMovies(page, limit);
   }
@@ -78,3 +78,5 @@ export default class Butter {
     return MetadataAdapter.watchList(method, metadata);
   }
 }
+
+export default new Butter();

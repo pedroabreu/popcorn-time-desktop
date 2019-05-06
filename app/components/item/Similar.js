@@ -20,8 +20,6 @@ export default class Similar extends Component<Props, State> {
 
   state: State;
 
-  butter: Butter;
-
   initialState: State = {
     items: [],
     isLoading: false,
@@ -31,7 +29,6 @@ export default class Similar extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.butter = new Butter();
     this.state = this.initialState;
   }
 
@@ -45,7 +42,7 @@ export default class Similar extends Component<Props, State> {
     this.setState({ isLoading: true });
 
     try {
-      const similarItems = await this.butter.getSimilar(type, imdbId);
+      const similarItems = await Butter.getSimilar(type, imdbId);
 
       this.setState({
         similarItems,
