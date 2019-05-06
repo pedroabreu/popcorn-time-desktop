@@ -23,9 +23,9 @@ type extendedDetailsType =
  */
 const providers = [
   import('./YtsTorrentProvider').then(e => e.default || e),
-  import('./PbTorrentProvider').then(e => e.default || e),
-  import('./PctTorrentProvider').then(e => e.default || e),
-  import('./KatTorrentProvider').then(e => e.default || e)
+  // import('./PbTorrentProvider').then(e => e.default || e),
+  import('./PctTorrentProvider').then(e => e.default || e)
+  // import('./KatTorrentProvider').then(e => e.default || e)
 ];
 
 export function filterShows(show, season: number, episode: number) {

@@ -15,7 +15,7 @@ export type subtitleType = {
   buffer: Buffer
 };
 
-export default class SubtitleServer {
+class SubtitleServer {
   basePath = os.tmpdir();
 
   server: express;
@@ -78,6 +78,8 @@ export default class SubtitleServer {
     });
   }
 }
+
+export default new SubtitleServer();
 
 export const languages = [
   // 'sq',

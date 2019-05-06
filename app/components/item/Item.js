@@ -79,12 +79,6 @@ export default class Item extends Component<Props, State> {
 
   state: State;
 
-  torrent: Torrent;
-
-  playerProvider: ChromecastPlayerProvider;
-
-  player: Player;
-
   defaultTorrent: torrentSelectionType = {
     default: {
       quality: undefined,
@@ -160,11 +154,7 @@ export default class Item extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.torrent = new Torrent();
-    this.player = new Player();
     this.state = this.initialState;
-    this.subtitleServer = new SubtitleServer();
-    this.playerProvider = new ChromecastPlayerProvider();
   }
 
   static defaultProps: Props;
@@ -174,12 +164,12 @@ export default class Item extends Component<Props, State> {
    */
   setPlayer = ({ target: { name: player, id } }: Event<HTMLButtonElement>) => {
     if (['youtube', 'default'].includes(player)) {
-      this.player.player = this.plyr;
+      Player.setPlayer(this.plyr);
       this.toggleActive();
     }
 
     if (player === 'chromecast') {
-      this.playerProvider.selectDevice(id);
+      ChromecastPlayerProvider.selectDevice(id);
     }
 
     this.setState({ currentPlayer: player });
@@ -189,8 +179,10 @@ export default class Item extends Component<Props, State> {
     const { itemId } = this.props;
     window.scrollTo(0, 0);
 
+    Player.setPlayer(this.plyr);
+
     this.stopPlayback();
-    this.player.destroy();
+    Player.destroy();
 
     this.setState({
       ...this.initialState,
@@ -201,7 +193,7 @@ export default class Item extends Component<Props, State> {
 
     this.getAllData(itemId);
 
-    this.subtitleServer.startServer();
+    SubtitleServer.startServer();
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -215,8 +207,8 @@ export default class Item extends Component<Props, State> {
 
   componentWillUnmount() {
     this.stopPlayback();
-    this.player.destroy();
-    this.subtitleServer.closeServer();
+    Player.destroy();
+    SubtitleServer.closeServer();
   }
 
   getAllData(itemId: string) {
@@ -420,11 +412,11 @@ export default class Item extends Component<Props, State> {
       return;
     }
     if (['youtube', 'default'].includes(currentPlayer)) {
-      this.plyr.pause();
+      Player.pause();
     }
 
-    this.player.destroy();
-    this.torrent.destroy();
+    Player.destroy();
+    Torrent.destroy();
     this.setState({ torrentInProgress: false });
   };
 
@@ -479,9 +471,7 @@ export default class Item extends Component<Props, State> {
           kind: 'captions',
           label: subtitle.langShort,
           srclang: subtitle.langShort,
-          src: `http://localhost:${this.subtitleServer.port}/${
-            subtitle.fileName
-          }`
+          src: `http://localhost:${SubtitleServer.port}/${subtitle.fileName}`
         }))
       )
       .catch(console.log);
@@ -556,7 +546,7 @@ export default class Item extends Component<Props, State> {
       ...Player.nativePlaybackFormats
     ];
 
-    await this.torrent.start(
+    await Torrent.start(
       magnet,
       metadata,
       formats,
@@ -570,35 +560,35 @@ export default class Item extends Component<Props, State> {
 
         switch (currentPlayer) {
           case 'VLC':
-            return this.player.initVLC(servingUrl);
+            return Player.initVLC(servingUrl);
           case 'chromecast': {
-            this.player.initCast(this.playerProvider, servingUrl, item);
+            Player.initCast(ChromecastPlayerProvider, servingUrl, item);
             break;
           }
           case 'youtube':
             this.toggleActive();
             setTimeout(() => {
-              this.plyr.updateHtmlVideoSource(
+              Player.updateVideoSource(
                 servingUrl,
                 'video',
                 item.title,
                 undefined,
                 captions
               );
-              this.plyr.play();
+              Player.play();
             }, 3000);
             break;
           case 'default':
             this.toggleActive();
             setTimeout(() => {
-              this.plyr.updateHtmlVideoSource(
+              Player.updateVideoSource(
                 servingUrl,
                 'video',
                 item.title,
                 undefined,
                 captions
               );
-              this.plyr.play();
+              Player.play();
             }, 3000);
             break;
           default:
@@ -705,7 +695,7 @@ export default class Item extends Component<Props, State> {
         <Row className="row-margin">
           <Col sm="2">
             <SelectPlayer
-              chromeCastPlayer={this.playerProvider}
+              chromeCastPlayer={ChromecastPlayerProvider}
               currentSelection={currentPlayer}
               onSelect={this.setPlayer}
             />
