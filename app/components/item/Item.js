@@ -164,7 +164,6 @@ export default class Item extends Component<Props, State> {
    */
   setPlayer = ({ target: { name: player, id } }: Event<HTMLButtonElement>) => {
     if (['youtube', 'default'].includes(player)) {
-      Player.setPlayer(this.plyr);
       this.toggleActive();
     }
 
@@ -178,8 +177,6 @@ export default class Item extends Component<Props, State> {
   async componentDidMount() {
     const { itemId } = this.props;
     window.scrollTo(0, 0);
-
-    Player.setPlayer(this.plyr);
 
     this.stopPlayback();
     Player.destroy();
@@ -558,56 +555,27 @@ export default class Item extends Component<Props, State> {
       ) => {
         console.log(`Serving torrent at: ${servingUrl}`);
 
-        switch (currentPlayer) {
-          case 'VLC':
-            return Player.initVLC(servingUrl);
-          case 'chromecast': {
-            Player.initCast(ChromecastPlayerProvider, servingUrl, item);
-            break;
-          }
-          case 'youtube':
-            this.toggleActive();
-            setTimeout(() => {
-              Player.updateVideoSource(
-                servingUrl,
-                'video',
-                item.title,
-                undefined,
-                captions
-              );
-              Player.play();
-            }, 3000);
-            break;
-          case 'default':
-            this.toggleActive();
-            setTimeout(() => {
-              Player.updateVideoSource(
-                servingUrl,
-                'video',
-                item.title,
-                undefined,
-                captions
-              );
-              Player.play();
-            }, 3000);
-            break;
-          default:
-            console.error('Invalid player');
-            break;
+        if (currentPlayer === 'VLC') {
+          return Player.initVLC(servingUrl);
         }
 
-        const recentlyWatchedList = await Butter.recentlyWatched('get');
-        const containsRecentlyWatchedItem = recentlyWatchedList.some(
-          e => e.id === item.id
-        );
-        if (!containsRecentlyWatchedItem) {
-          await Butter.recentlyWatched('set', item);
+        if (currentPlayer === 'chromecast') {
+          Player.initCast(ChromecastPlayerProvider, servingUrl, item);
+        } else if (['youtube', 'default'].includes(currentPlayer)) {
+          this.toggleActive();
+          setTimeout(() => {
+            Player.updateVideoSource(
+              servingUrl,
+              'video',
+              item.title,
+              undefined,
+              captions
+            );
+            Player.play();
+          }, 3000);
         }
 
-        this.setState({
-          captions,
-          servingUrl
-        });
+        this.setState({ servingUrl });
 
         return torrentHash;
       },
@@ -615,6 +583,14 @@ export default class Item extends Component<Props, State> {
         console.log('DOWNLOADING', downloaded);
       }
     );
+
+    const recentlyWatchedList = await Butter.recentlyWatched('get');
+    const containsRecentlyWatchedItem = recentlyWatchedList.some(
+      e => e.id === item.id
+    );
+    if (!containsRecentlyWatchedItem) {
+      await Butter.recentlyWatched('set', item);
+    }
   };
 
   render() {
@@ -654,9 +630,6 @@ export default class Item extends Component<Props, State> {
             url={playbackInProgress ? servingUrl || item.trailer : undefined}
             item={item}
             onClose={this.closeVideo}
-            forwardedRef={ref => {
-              this.plyr = ref;
-            }}
           />
           <Col sm="12" className="Item--background" style={itemBackgroundUrl}>
             <Col sm="6" className="Item--image">
