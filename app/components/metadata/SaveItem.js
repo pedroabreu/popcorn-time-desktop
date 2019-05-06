@@ -31,8 +31,6 @@ export default class SaveItem extends Component<Props, State> {
     isInWatchList: false
   };
 
-  butter = new Butter();
-
   static defaultProps: Props = {
     item: {},
     favorites: [],
@@ -56,14 +54,14 @@ export default class SaveItem extends Component<Props, State> {
 
   async addFavorite() {
     const { item } = this.props;
-    const favorites = await this.butter.favorites('get');
+    const favorites = await Butter.favorites('get');
     if (!hasFavorites(favorites, item.ids.tmdbId)) {
-      await this.butter.favorites('set', item);
+      await Butter.favorites('set', item);
       this.setState({
         isInFavorites: true
       });
     } else {
-      await this.butter.favorites('remove', item);
+      await Butter.favorites('remove', item);
       this.setState({
         isInFavorites: false
       });
@@ -72,14 +70,14 @@ export default class SaveItem extends Component<Props, State> {
 
   async addWatchList() {
     const { item } = this.props;
-    const watchList = await this.butter.watchList('get');
+    const watchList = await Butter.watchList('get');
     if (!hasWatchList(watchList, item.ids.tmdbId)) {
-      await this.butter.watchList('set', item);
+      await Butter.watchList('set', item);
       this.setState({
         isInWatchList: true
       });
     } else {
-      await this.butter.watchList('remove', item);
+      await Butter.watchList('remove', item);
       this.setState({
         isInWatchList: false
       });

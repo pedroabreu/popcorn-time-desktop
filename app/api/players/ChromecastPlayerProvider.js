@@ -148,4 +148,4 @@ class ChromecastPlayerProvider implements PlayerProviderInterface {
   }
 }
 
-export default ChromecastPlayerProvider;
+export default new ChromecastPlayerProvider();

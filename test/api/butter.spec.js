@@ -90,15 +90,13 @@ describe('API', () => {
           id: 'who'
         };
 
-        const butter = butterFactory();
-
         // Test addition
-        expect(await butter[type]('set', res)).toEqual([res]);
-        expect(await butter[type]('get')).toEqual([res]);
+        expect(await Butter[type]('set', res)).toEqual([res]);
+        expect(await Butter[type]('get')).toEqual([res]);
 
         // Test addition of multiple elements
         expect(
-          await butter[type]('set', {
+          await Butter[type]('set', {
             ...res,
             id: 'lee'
           })
@@ -109,7 +107,7 @@ describe('API', () => {
             id: 'lee'
           }
         ]);
-        expect(await butter[type]('get')).toEqual([
+        expect(await Butter[type]('get')).toEqual([
           res,
           {
             ...res,
@@ -401,14 +399,14 @@ describe('API', () => {
 
       describe('shows', () => {
         it('should return array of objects', async () => {
-          const shows = await butterFactory().getShows();
+          const shows = await Butter.getShows();
           for (const show of shows) {
             chaiExpect(show).to.be.an('object');
           }
         });
 
         it('should have shows that have necessary properties', async () => {
-          const shows = await butterFactory().getShows();
+          const shows = await Butter.getShows();
           for (const show of shows) {
             assertMovieFormat(show);
           }
@@ -417,12 +415,12 @@ describe('API', () => {
 
       describe('show', () => {
         it('should get show metadata', async () => {
-          const showMetadata = await butterFactory().getShow('1399');
+          const showMetadata = await Butter.getShow('1399');
           assertMovieFormat(showMetadata);
         });
 
         it('should get seasons', async () => {
-          const seasons = await butterFactory().getSeasons('1399');
+          const seasons = await Butter.getSeasons('1399');
           const [season] = seasons;
 
           chaiExpect(season).to.be.an('object');
@@ -438,7 +436,7 @@ describe('API', () => {
         });
 
         it('should get season', async () => {
-          const episodes = await butterFactory().getSeason('1399', 1);
+          const episodes = await Butter.getSeason('1399', 1);
           const [episode] = episodes;
 
           chaiExpect(episode).to.be.an('object');
@@ -460,7 +458,7 @@ describe('API', () => {
         });
 
         it('should get episode', async () => {
-          const episode = await butterFactory().getEpisode('1399', 2, 2);
+          const episode = await Butter.getEpisode('1399', 2, 2);
 
           chaiExpect(episode).to.be.an('object');
           chaiExpect(episode)
@@ -491,10 +489,7 @@ describe('API', () => {
 
       describe('similar', () => {
         it('should get similar movies and shows in correct format', async () => {
-          const similarMovies = await butterFactory().getSimilar(
-            'movies',
-            imdbId
-          );
+          const similarMovies = await Butter.getSimilar('movies', imdbId);
 
           for (const similarMovie of similarMovies) {
             assertMovieFormat(similarMovie);
@@ -504,7 +499,7 @@ describe('API', () => {
 
       describe('search', () => {
         it('should search movies in correct format', async () => {
-          const searchResults = await butterFactory().search(
+          const searchResults = await Butter.search(
             'Harry Potter and the Goblet of Fire',
             'movies'
           );
@@ -519,7 +514,7 @@ describe('API', () => {
     describe('torrents', () => {
       describe('movie torrents', () => {
         it('should get torrents and their magnets of 720p and 1080p', async () => {
-          const torrent = await butterFactory().getTorrent(imdbId, 'movies', {
+          const torrent = await Butter.getTorrent(imdbId, 'movies', {
             searchQuery: 'the dark knight'
           });
 
@@ -533,7 +528,7 @@ describe('API', () => {
 
         it('should order torrents by seeder count by default', async () => {
           // Get all sorted torrents
-          const torrents = await butterFactory().getTorrent(
+          const torrents = await Butter.getTorrent(
             'tt1375666',
             'movies',
             {
@@ -563,15 +558,11 @@ describe('API', () => {
 
       describe('show torrents', () => {
         it('should have torrents for season_complete and shows methods', async () => {
-          const torrents = await butterFactory().getTorrent(
-            'tt0944947',
-            'shows',
-            {
-              season: 6,
-              episode: 6,
-              searchQuery: 'game of thrones'
-            }
-          );
+          const torrents = await Butter.getTorrent('tt0944947', 'shows', {
+            season: 6,
+            episode: 6,
+            searchQuery: 'game of thrones'
+          });
 
           assertNotEmptySingleTorrent(torrents);
 
@@ -589,15 +580,11 @@ describe('API', () => {
         });
 
         it('should get show torrent by imdbId', async () => {
-          const torrents = await butterFactory().getTorrent(
-            'tt0944947',
-            'shows',
-            {
-              season: 2,
-              episode: 2,
-              searchQuery: 'game of thrones'
-            }
-          );
+          const torrents = await Butter.getTorrent('tt0944947', 'shows', {
+            season: 2,
+            episode: 2,
+            searchQuery: 'game of thrones'
+          });
 
           assertNotEmptySingleTorrent(torrents);
 
@@ -613,7 +600,7 @@ describe('API', () => {
         });
 
         it('should get season_complete torrents', async () => {
-          const torrents = await butterFactory().getTorrent(
+          const torrents = await Butter.getTorrent(
             'tt0944947',
             'season_complete',
             {
@@ -655,7 +642,7 @@ describe('API', () => {
 
       describe.skip('Subtitles', function testSubtitles() {
         beforeAll(async () => {
-          this.subtitles = await butterFactory().getSubtitles(
+          this.subtitles = await Butter.getSubtitles(
             'tt0468569',
             'The.Dark.Knight.2008.720p.BluRay.x264.YIFY.mp4',
             undefined,
@@ -680,7 +667,7 @@ describe('API', () => {
 
         describe('Show', () => {
           it.skip('should return subtitles', async () => {
-            const subtitles = await butterFactory().getSubtitles(showImdbId);
+            const subtitles = await Butter.getSubtitles(showImdbId);
             for (const subtitle of subtitles) {
               chaiExpect(subtitle).to.be.an('object');
             }
@@ -692,15 +679,11 @@ describe('API', () => {
         describe('valid torrents for top 20 shows', () => {
           for (const show of MockShows.filter((e, i) => i < 20)) {
             it(`${show.title} Season 1 Episode 1`, async () => {
-              const torrent = await butterFactory().getTorrent(
-                show.id,
-                'shows',
-                {
-                  season: 1,
-                  episode: 1,
-                  searchQuery: show.title
-                }
-              );
+              const torrent = await Butter.getTorrent(show.id, 'shows', {
+                season: 1,
+                episode: 1,
+                searchQuery: show.title
+              });
               chaiExpect(torrent).to.be.an('object');
 
               for (const quality of ['480p', '720p', '1080p']) {
@@ -716,10 +699,6 @@ describe('API', () => {
     });
   });
 });
-
-function butterFactory() {
-  return new Butter();
-}
 
 function moviesFactory() {
   return new Butter().getMovies(1, 50);

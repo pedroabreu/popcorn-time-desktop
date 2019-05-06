@@ -65,11 +65,8 @@ export default class Home extends Component<Props, State> {
     watchList: []
   };
 
-  butter: Butter;
-
   constructor(props: Props) {
     super(props);
-    this.butter = new Butter();
 
     // Temporary hack to preserve scroll position
     if (!global.pct) {
@@ -106,14 +103,14 @@ export default class Home extends Component<Props, State> {
     const items = await (async () => {
       switch (queryType) {
         case 'search': {
-          return this.butter.search(activeModeOptions.searchQuery, page);
+          return Butter.search(activeModeOptions.searchQuery, page);
         }
         case 'movies':
-          return this.butter.getMovies(page, limit);
+          return Butter.getMovies(page, limit);
         case 'shows':
-          return this.butter.getShows(page, limit);
+          return Butter.getShows(page, limit);
         default:
-          return this.butter.getMovies(page, limit);
+          return Butter.getMovies(page, limit);
       }
     })();
 
@@ -151,9 +148,9 @@ export default class Home extends Component<Props, State> {
     window.scrollTo(0, global.pct[`${activeMode}ScrollTop`]);
 
     const [favorites, watchList, recentlyWatched] = await Promise.all([
-      this.butter.favorites('get'),
-      this.butter.watchList('get'),
-      this.butter.recentlyWatched('get')
+      Butter.favorites('get'),
+      Butter.watchList('get'),
+      Butter.recentlyWatched('get')
     ]);
 
     this.setState({

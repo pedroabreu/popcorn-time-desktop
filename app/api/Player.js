@@ -11,7 +11,7 @@ export type subtitleType = { kind: string, src: string, srclang: string };
 
 const { powerSaveBlocker } = remote;
 
-export default class Player {
+class Player {
   currentPlayer = 'plyr';
 
   powerSaveBlockerId: number;
@@ -21,17 +21,9 @@ export default class Player {
    */
   player: plyr;
 
-  static nativePlaybackFormats = [
-    'mp4',
-    'ogg',
-    'mov',
-    'webmv',
-    'mkv',
-    'wmv',
-    'avi'
-  ];
+  nativePlaybackFormats = ['mp4', 'ogg', 'mov', 'webmv', 'mkv', 'wmv', 'avi'];
 
-  static experimentalPlaybackFormats = [];
+  experimentalPlaybackFormats = [];
 
   /**
    * Cleanup all traces of the player UI
@@ -72,6 +64,10 @@ export default class Player {
     return provider.play(addr, metadata, subtitles);
   }
 
+  setPlayer(player) {
+    this.player = player;
+  }
+
   initYouTube() {
     console.info('Initializing plyr...');
     this.currentPlayer = 'plyr';
@@ -110,4 +106,18 @@ export default class Player {
       return true;
     });
   }
+
+  play() {
+    this.player.play();
+  }
+
+  pause() {
+    this.player.pause();
+  }
+
+  updateVideoSource(url, type, title, whatever, captions) {
+    this.player.updateHtmlVideoSource(url, type, title, whatever, captions);
+  }
 }
+
+export default new Player();

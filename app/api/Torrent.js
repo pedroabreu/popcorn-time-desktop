@@ -43,7 +43,7 @@ export function selectSubtitleFile(
   );
 }
 
-export default class Torrent {
+class Torrent {
   inProgress: boolean = false;
 
   finished: boolean = false;
@@ -225,3 +225,5 @@ export function formatSpeeds(
     ratio
   };
 }
+
+export default new Torrent();
